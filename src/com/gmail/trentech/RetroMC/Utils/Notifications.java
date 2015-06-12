@@ -1,7 +1,5 @@
 package com.gmail.trentech.RetroMC.Utils;
 
-import java.io.File;
-
 import ninja.leaping.configurate.ConfigurationNode;
 
 import org.spongepowered.api.text.Text;
@@ -14,19 +12,21 @@ public class Notifications {
 	private String type;
 	private String playerName;
 	private String time;
+	private String lives;
 	
 	public Notifications() {
 		
 	}
 	
-	public Notifications(String type, String playerName, String time) {
+	public Notifications(String type, String playerName, String time, String lives) {
 		this.type = type;
 		this.playerName = playerName;
 		this.time = time;
+		this.lives = lives;
 	}
 	
 	public void getMessages() {
-    	ConfigurationNode config = new ConfigLoader(new File("config/RetroMC/config.conf")).getConfig();
+    	ConfigurationNode config = new ConfigLoader().getConfig();
 
 		RetroMC.messages.put("Permission-Denied", config.getNode("messages", "Permission-Denied").getString());
 		RetroMC.messages.put("Not-Player", config.getNode("messages", "Not-Player").getString());
@@ -36,6 +36,7 @@ public class Notifications {
 		RetroMC.messages.put("Ban", config.getNode("messages", "Ban").getString());
 		RetroMC.messages.put("Temp-Ban", config.getNode("messages", "Temp-Ban").getString());
 		RetroMC.messages.put("Player-Reset", config.getNode("messages", "Player-Reset").getString());
+		RetroMC.messages.put("Player-Lives", config.getNode("messages", "Player-Lives").getString());
 	}
 	
 	public Text getMessage() {
@@ -47,6 +48,9 @@ public class Notifications {
 			}
 			if(msg.contains("%T")) {
 				msg = msg.replaceAll("%T", time);
+			}
+			if(msg.contains("%L")) {
+				msg = msg.replaceAll("%L", lives);
 			}
 		}else{
 			throw new NullPointerException("Message Missing from Config!");

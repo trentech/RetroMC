@@ -31,7 +31,7 @@ public class CMDHelp implements CommandExecutor {
 			switch(cmd) {
 			case "reload":
 				if(!src.hasPermission("RetroMC.cmd.reload")) {
-					Notifications notify = new Notifications("Permission-Denied", null, null);
+					Notifications notify = new Notifications("Permission-Denied", null, null, null);
 					src.sendMessage(Texts.of(notify.getMessage()));
 					break;
 				}
@@ -42,7 +42,7 @@ public class CMDHelp implements CommandExecutor {
 				break;
 			case "reset":
 				if(!src.hasPermission("RetroMC.cmd.reset")) {
-					Notifications notify = new Notifications("Permission-Denied", null, null);
+					Notifications notify = new Notifications("Permission-Denied", null, null, null);
 					src.sendMessage(Texts.of(notify.getMessage()));
 					break;
 				}
@@ -52,7 +52,7 @@ public class CMDHelp implements CommandExecutor {
 				src.sendMessage(Texts.of(TextColors.YELLOW, "    /retro reset Notch"));
 				break;
 			default:
-				Notifications notify = new Notifications("Invalid-Argument", null, null);
+				Notifications notify = new Notifications("Invalid-Argument", null, null, null);
 				src.sendMessage(Texts.of(notify.getMessage()));
 			}
 		}

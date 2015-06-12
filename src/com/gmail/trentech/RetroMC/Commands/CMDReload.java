@@ -16,12 +16,12 @@ public class CMDReload implements CommandExecutor {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		ConfigLoader config = new ConfigLoader(new File("config/RetroMC/config.conf"));
+		ConfigLoader config = new ConfigLoader();
 		config.saveConfig();
 		File folder = new File("config/RetroMC/Players/");
         File[] files = folder.listFiles();
  	    for(File file : files){
- 	    	config = new ConfigLoader(file);
+ 	    	config = new ConfigLoader("config/RetroMC/Players/", file.getName());
  	    	config.saveConfig();
  	    }
 		src.sendMessage(Texts.of(TextColors.DARK_GREEN, "RetroMC Reloaded!"));

@@ -14,17 +14,20 @@ public class ConfigLoader {
 	CommentedConfigurationNode config;
 	ConfigurationLoader<CommentedConfigurationNode> loader;
 	
-	public ConfigLoader(File file) {
-		this.file = file;
-
-		if(!file.exists()) {
-			try {
-				file.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-				Logger.getGlobal().severe("Failed to save config file!");
-			}
-		}
+	public ConfigLoader(String folder, String fileName) {
+        if (!new File(folder).isDirectory()) {
+        	new File(folder).mkdirs();
+        }
+		this.file = new File(folder, fileName);
+		create();
+	}
+	
+	public ConfigLoader() {
+        if (!new File("config/RetroMC/").isDirectory()) {
+        	new File("config/RetroMC/").mkdirs();
+        }
+		this.file = new File("config/RetroMC/", "config.conf");
+		create();
 	}
 	
 	public CommentedConfigurationNode getConfig() {
@@ -48,6 +51,17 @@ public class ConfigLoader {
 			e.printStackTrace();
 			Logger.getGlobal().severe("Failed to save Config!");
 			return false;
+		}
+	}
+	
+	private void create(){
+		if(!file.exists()) {
+			try {
+				file.createNewFile();		
+			} catch (IOException e) {
+				e.printStackTrace();
+				Utils.getLogger().error("Failed to create config file!");
+			}
 		}
 	}
 	
@@ -82,6 +96,9 @@ public class ConfigLoader {
         }
         if(config.getNode("messages", "Player-Reset").getString() == null) {
         	config.getNode("messages", "Player-Reset").setValue("&eReset %P's lives!");
+        }
+        if(config.getNode("messages", "Player-Lives").getString() == null) {
+        	config.getNode("messages", "Player-Lives").setValue("&eLives: %L");
         }
         if(config.getNode("messages", "Not-Player").getString() == null) {
         	config.getNode("messages", "Not-Player").setValue("&4You must be a player to run this command!");

@@ -1,6 +1,5 @@
 package com.gmail.trentech.RetroMC;
 
-import java.io.File;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
@@ -29,12 +28,7 @@ public class RetroMC {
 	
 	@Subscribe
     public void onPreInit(PreInitializationEvent event) {
-        if (!new File("config/RetroMC/").isDirectory()) {
-        	new File("config/RetroMC/").mkdirs();
-        }
-		File defaultConfigFile = new File("config/RetroMC/config.conf");
-		ConfigLoader config = new ConfigLoader(defaultConfigFile);		
-		config.initConfig();
+		new ConfigLoader().initConfig();		
 	}
 	
 	@Subscribe

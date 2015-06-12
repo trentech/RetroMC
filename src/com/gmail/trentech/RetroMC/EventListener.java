@@ -1,6 +1,5 @@
 package com.gmail.trentech.RetroMC;
 
-import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,6 +9,7 @@ import ninja.leaping.configurate.ConfigurationNode;
 
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.Subscribe;
+import org.spongepowered.api.event.entity.player.PlayerDeathEvent;
 import org.spongepowered.api.event.entity.player.PlayerJoinEvent;
 import org.spongepowered.api.text.Texts;
 
@@ -22,16 +22,14 @@ public class EventListener {
 	@Subscribe
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getUser();
-		
-        File playerConfigFile = new File("config/RetroMC/Players", player.getUniqueId().toString() + ".conf");
-    	ConfigLoader pLoader = new ConfigLoader(playerConfigFile);
+    	ConfigLoader pLoader = new ConfigLoader("config/RetroMC/Players", player.getUniqueId().toString() + ".conf");
     	ConfigurationNode playerConfig = pLoader.getConfig();
         playerConfig.getNode("Readable-Name").setValue(player.getName());
-        
-        if(playerConfig.getNode("Lives").getString() == null){
-        	playerConfig.getNode("Lives").setValue(new ConfigLoader(new File("config/RetroMC/config.conf")).getConfig().getNode("Default-Lives").getInt());
+      
+        if(playerConfig.getNode("Lives").getString() == null) {
+        	playerConfig.getNode("Lives").setValue(new ConfigLoader().getConfig().getNode("Default-Lives").getInt());
         }
-        if(playerConfig.getNode("Banned").getString() == null){
+        if(playerConfig.getNode("Banned").getString() == null) {
         	playerConfig.getNode("Banned").setValue(false);	
         }
         if(playerConfig.getNode("Time").getString() == null){
@@ -39,15 +37,19 @@ public class EventListener {
         }
         pLoader.saveConfig();
         
-    	ConfigurationNode config = new ConfigLoader(new File("config/RetroMC/config.conf")).getConfig();
-    	
-        if(!config.getNode("config", "Ban", "Enabled").getBoolean()){
+        if(!player.hasPermission("RetroMC.enable")) {
         	return;
         }
         
-        if(playerConfig.getNode("Banned").getBoolean()){
+    	ConfigurationNode config = new ConfigLoader().getConfig();
+    	
+        if(!config.getNode("config", "Ban", "Enabled").getBoolean()) {
+        	return;
+        }
+        
+        if(playerConfig.getNode("Banned").getBoolean()) {
         	
-        	if(config.getNode("config", "Ban", "Temp-Ban").getBoolean()){
+        	if(config.getNode("config", "Ban", "Temp-Ban").getBoolean()) {
         		String pDate = playerConfig.getNode("Time").getString();
         		Date date = new Date();
         		Date playerDate = null;
@@ -59,8 +61,8 @@ public class EventListener {
         		}      		
         		long compare = TimeUnit.MILLISECONDS.toSeconds(date.getTime() - playerDate.getTime());
         		long time = Utils.getTimeInSeconds(config.getNode("config", "Ban", "Time").getString());
-        		if(!(time - compare <= 0)){		
-        			Notifications notify = new Notifications("Temp-Ban", Utils.getReadableTime((time - compare)), null);
+        		if(!(time - compare <= 0)) {		
+        			Notifications notify = new Notifications("Temp-Ban", Utils.getReadableTime((time - compare)), null, null);
         			player.kick(Texts.of(notify.getMessage()));
         		}else{
         			playerConfig.getNode("Banned").setValue(false);
@@ -71,7 +73,29 @@ public class EventListener {
         		player.kick(Texts.of("Game Over!"));
         	}	
         }
+   
+	}
+	
+	@Subscribe
+	public void onPlayerJoin(PlayerDeathEvent event) {
+		Player player = event.getUser();
+        if(!player.hasPermission("RetroMC.enable")) {
+        	return;
+        }
         
+    	ConfigLoader pLoader = new ConfigLoader("config/RetroMC/Players", player.getUniqueId().toString() + ".conf");
+    	ConfigurationNode playerConfig = pLoader.getConfig();
+    	
+    	int lives = playerConfig.getNode("Lives").getInt();
+    	if((lives -1) <= 0) {
+    		player.getInventory().clear();
+    		playerConfig.getNode("Lives").setValue(new ConfigLoader().getConfig().getNode("Default-Lives").getInt());
+    		pLoader.saveConfig();
+    	}else{
+    		playerConfig.getNode("Lives").setValue(lives - 1);
+			Notifications notify = new Notifications("Player-Lives", null, null, Integer.toString(lives - 1));
+    		player.sendMessage(notify.getMessage());
+    	}
         
 	}
 	
