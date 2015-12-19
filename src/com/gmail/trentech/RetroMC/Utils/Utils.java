@@ -1,44 +1,6 @@
 package com.gmail.trentech.RetroMC.Utils;
 
-import org.slf4j.Logger;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.Server;
-import org.spongepowered.api.text.format.TextColor;
-
-import com.gmail.trentech.RetroMC.RetroMC;
-import com.gmail.trentech.RetroMC.RetroMCMod;
-import com.google.common.base.Optional;
-
 public class Utils {
-	
-    private static RetroMCMod plugin;
-	
-    public static void setPlugin(RetroMCMod plugin) {
-        if (Utils.plugin != null) {
-            throw new IllegalStateException("Cannot redefine RetroMCMod plugin!");
-        }
-        Utils.plugin = plugin;
-    }
- 
-    public static RetroMCMod getplugin() {
-        return Utils.plugin;
-    }
- 
-    public static RetroMC getPluginContainer() {
-        return Utils.plugin.getPluginContainer();
-    }
- 
-    public static Game getGame() {
-        return Utils.plugin.getGame();
-    }
-    
-    public static Server getServer() {
-    	return Utils.plugin.getServer();
-    }
- 
-    public static Logger getLogger() {
-        return Utils.plugin.getLogger();
-    }
 
 	public static int getTimeInSeconds(String time) {
 		String[] times = time.split(" ");
@@ -63,9 +25,9 @@ public class Utils {
 		return seconds;
 	}
 	
-	public static String getReadableTime(long timeInSec) {
-		long weeks = timeInSec / 604800;
-		long wRemainder = timeInSec % 604800;
+	public static String getReadableTime(long timeSeconds) {
+		long weeks = timeSeconds / 604800;
+		long wRemainder = timeSeconds % 604800;
 		long days = wRemainder / 86400;
 		long dRemainder = wRemainder % 86400;
 		long hours = dRemainder / 3600;
@@ -126,23 +88,4 @@ public class Utils {
 		}
 		return time;
 	}
-
-    public static String translateColorCodes(String textToTranslate) {
-    	char colorCode = '&';
-    	//final char COLOR_CHAR = '§';
-    	final char COLOR_CHAR = '\u00A7';
-        char[] b = textToTranslate.toCharArray();
-        for (int i = 0; i < b.length - 1; i++) {
-            if (b[i] == colorCode && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i+1]) > -1) {
-                b[i] = COLOR_CHAR;
-                b[i+1] = Character.toLowerCase(b[i+1]);
-            }
-        }
-        return new String(b);
-    }
-    
-    public static Optional<TextColor> getColor(String name) {
-    	return getGame().getRegistry().getType(TextColor.class, name.toUpperCase());
-    }
-
 }

@@ -1,52 +1,53 @@
 package com.gmail.trentech.RetroMC.Commands;
 
-import ninja.leaping.configurate.ConfigurationNode;
-
-import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.util.command.CommandException;
-import org.spongepowered.api.util.command.CommandResult;
-import org.spongepowered.api.util.command.CommandSource;
-import org.spongepowered.api.util.command.args.CommandContext;
-import org.spongepowered.api.util.command.spec.CommandExecutor;
 
-import com.gmail.trentech.RetroMC.Utils.ConfigLoader;
-import com.gmail.trentech.RetroMC.Utils.Notifications;
-import com.gmail.trentech.RetroMC.Utils.Utils;
+import com.gmail.trentech.RetroMC.Main;
+import com.gmail.trentech.RetroMC.Managers.ConfigManager;
+
+import ninja.leaping.configurate.ConfigurationNode;
 
 public class CMDReset implements CommandExecutor {
 
+	public CommandSpec cmdReset = CommandSpec.builder().description(Texts.of("Reset Player!")).permission("RetroMC.cmd.reset")
+			.arguments(GenericArguments.optional(GenericArguments.string(Texts.of("playerName")))).executor(this).build();
+	
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {		
 		if(!args.hasAny("playerName")) {
-			Notifications notify = new Notifications("Invalid-Argument", null, null, null);
-			src.sendMessage(Texts.of(notify.getMessage()));
+			src.sendMessage(Texts.of(TextColors.DARK_RED, "Invalid Argument!"));
 			src.sendMessage(Texts.of(TextColors.YELLOW, "/kit reset <player>"));
 			return CommandResult.empty();
 		}
 
 		String playerName = args.<String>getOne("playerName").get();
 
-		if(Utils.getServer().getPlayer(playerName).get() == null) {
-			Notifications notify = new Notifications("No-Player", playerName, null, null);
-			src.sendMessage(Texts.of(notify.getMessage()));
+		if(Main.getGame().getServer().getPlayer(playerName).get() == null) {
+			src.sendMessage(Texts.of(TextColors.DARK_RED, playerName, "Not Found!"));
 			return CommandResult.empty();
 		}		
 
-		Player player = Utils.getServer().getPlayer(playerName).get();
+		Player player = Main.getGame().getServer().getPlayer(playerName).get();
 
-    	ConfigLoader pLoader = new ConfigLoader("config/RetroMC/Players", player.getUniqueId().toString() + ".conf");
-    	ConfigurationNode playerConfig = pLoader.getConfig();
+    	ConfigManager playerConfigManager = new ConfigManager("config/RetroMC/Players", player.getUniqueId().toString() + ".conf");
+    	ConfigurationNode playerConfig = playerConfigManager.getConfig();
 
-        playerConfig.getNode("Lives").setValue(new ConfigLoader().getConfig().getNode("Default-Lives").getInt());
+        playerConfig.getNode("Lives").setValue(new ConfigManager().getConfig().getNode("Lives").getInt());
         playerConfig.getNode("Banned").setValue(false);
         playerConfig.getNode("Time").setValue(0);
 
-        pLoader.saveConfig();
-        
-		Notifications notify = new Notifications("Player-Reset", playerName, null, null);
-		src.sendMessage(Texts.of(notify.getMessage()));
+        playerConfigManager.save();
+
+		src.sendMessage(Texts.of(TextColors.DARK_GREEN, "Reset!"));
 		
 		return CommandResult.success();
 	}

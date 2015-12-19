@@ -1,18 +1,21 @@
 package com.gmail.trentech.RetroMC.Commands;
 
+import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
-import org.spongepowered.api.util.command.CommandException;
-import org.spongepowered.api.util.command.CommandResult;
-import org.spongepowered.api.util.command.CommandSource;
-import org.spongepowered.api.util.command.args.CommandContext;
-import org.spongepowered.api.util.command.spec.CommandExecutor;
-
-import com.gmail.trentech.RetroMC.Utils.Notifications;
 
 public class CMDHelp implements CommandExecutor {
 
+	public CommandSpec cmdHelp = CommandSpec.builder().description(Texts.of("Help me")).permission("RetroMC.cmd.help")
+			.arguments(GenericArguments.optional(GenericArguments.string(Texts.of("command")))).executor(this).build();
+	
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		if(!args.hasAny("command")) {
@@ -31,8 +34,7 @@ public class CMDHelp implements CommandExecutor {
 			switch(cmd) {
 			case "reload":
 				if(!src.hasPermission("RetroMC.cmd.reload")) {
-					Notifications notify = new Notifications("Permission-Denied", null, null, null);
-					src.sendMessage(Texts.of(notify.getMessage()));
+					src.sendMessage(Texts.of(TextColors.DARK_RED, "Permission Denied!"));
 					break;
 				}
 				src.sendMessage(Texts.of(TextColors.DARK_GREEN, TextStyles.UNDERLINE, "Description:\n"));
@@ -42,8 +44,7 @@ public class CMDHelp implements CommandExecutor {
 				break;
 			case "reset":
 				if(!src.hasPermission("RetroMC.cmd.reset")) {
-					Notifications notify = new Notifications("Permission-Denied", null, null, null);
-					src.sendMessage(Texts.of(notify.getMessage()));
+					src.sendMessage(Texts.of(TextColors.DARK_RED, "Permission Denied!"));
 					break;
 				}
 				src.sendMessage(Texts.of(TextColors.DARK_GREEN, TextStyles.UNDERLINE, "Description:\n"));
@@ -52,8 +53,7 @@ public class CMDHelp implements CommandExecutor {
 				src.sendMessage(Texts.of(TextColors.YELLOW, "    /retro reset Notch"));
 				break;
 			default:
-				Notifications notify = new Notifications("Invalid-Argument", null, null, null);
-				src.sendMessage(Texts.of(notify.getMessage()));
+				src.sendMessage(Texts.of(TextColors.DARK_RED, "Invalid Argument!"));
 			}
 		}
 		return CommandResult.success();
