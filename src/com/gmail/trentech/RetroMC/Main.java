@@ -16,7 +16,6 @@ import org.spongepowered.api.plugin.PluginContainer;
 import com.gmail.trentech.RetroMC.Commands.CMDRetro;
 import com.gmail.trentech.RetroMC.Managers.ConfigManager;
 import com.gmail.trentech.RetroMC.Managers.EconomyManager;
-import com.gmail.trentech.RetroMC.Utils.Resource;
 
 @Plugin(id = Resource.ID, name = Resource.NAME, dependencies = "after:EconomyLite;after:TotalEconomy", version = Resource.VERSION)
 public class Main {
@@ -35,14 +34,13 @@ public class Main {
 	
 	@Listener
 	public void onInitialization(GameInitializationEvent event) {
-		new ConfigManager().init();
+		new ConfigManager();
 		
 		game.getCommandManager().register(this, new CMDRetro().cmdRetro, "retro", "r");
 		game.getEventManager().registerListeners(this, new EventHandler());
 		
 		if(!EconomyManager.initialize()){
 			log.warn("Economy plugin not found!");
-			return;
 		}
 	}
 	

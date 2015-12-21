@@ -38,12 +38,10 @@ public class CMDReset implements CommandExecutor {
 
 		Player player = Main.getGame().getServer().getPlayer(playerName).get();
 
-    	ConfigManager playerConfigManager = new ConfigManager("config/RetroMC/Players", player.getUniqueId().toString() + ".conf");
+    	ConfigManager playerConfigManager = new ConfigManager(player);
     	ConfigurationNode playerConfig = playerConfigManager.getConfig();
 
         playerConfig.getNode("Lives").setValue(new ConfigManager().getConfig().getNode("Lives").getInt());
-        playerConfig.getNode("Banned").setValue(false);
-        playerConfig.getNode("Time").setValue(0);
 
         playerConfigManager.save();
 

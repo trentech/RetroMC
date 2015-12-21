@@ -1,8 +1,5 @@
 package com.gmail.trentech.RetroMC.Managers;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -11,41 +8,23 @@ import org.spongepowered.api.data.manipulator.mutable.entity.AchievementData;
 import org.spongepowered.api.data.manipulator.mutable.entity.ExperienceHolderData;
 import org.spongepowered.api.data.manipulator.mutable.entity.TradeOfferData;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.item.merchant.TradeOffer;
+import org.spongepowered.api.service.ban.BanService;
+import org.spongepowered.api.service.user.UserStorageService;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
-import org.spongepowered.api.util.ban.Ban.User;
+import org.spongepowered.api.util.ban.Ban;
+import org.spongepowered.api.util.ban.Ban.Builder;
+import org.spongepowered.api.util.ban.BanTypes;
 
 import com.gmail.trentech.RetroMC.Main;
-import com.gmail.trentech.RetroMC.Utils.Utils;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 public class RetroManager {
 
-	public static String getBanTimeRemaining(Player player){
-		ConfigManager configManager = new ConfigManager(player);
-		CommentedConfigurationNode config = configManager.getConfig();
-		
-		String formattedDate = config.getNode("Time").getString();
-
-		Date date = new Date();
-		Date expirationDate = null;
-		try {
-			expirationDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(formattedDate);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-
-	    if (expirationDate.before(new Date())) {
-			long compare = TimeUnit.MILLISECONDS.toSeconds(date.getTime() - expirationDate.getTime());
-			long time = Utils.getTimeInSeconds(new ConfigManager().getConfig().getNode("Ban", "Time").getString());
-
-			return Utils.getReadableTime(time - compare); 
-	    }
-		return null;
-	}
-	
-	public static void wipePlayerData(Player player){
+	public static void resetPlayer(Player player){
 		deletePlayerData(player);
 		deleteMoney(player);
 		blockRollback(player);
@@ -83,31 +62,50 @@ public class RetroManager {
 	}
 
 	private static void setBan(Player player){
-    	ConfigManager playerConfigManager = new ConfigManager(player);
-    	CommentedConfigurationNode playerConfig = playerConfigManager.getConfig();
     	CommentedConfigurationNode config = new ConfigManager().getConfig();
     	
     	if(config.getNode("Ban", "Enabled").getBoolean()){
-    		playerConfig.getNode("Banned").setValue(true);
-    		playerConfigManager.save();
+    		Text reason = Texts.of("Game Over!\nPermanently Banned\n");
     		
-    		if(!config.getNode("Ban", "Time").getString().equalsIgnoreCase("0")){
-    			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    			Date date = new Date();
-    			String strDate = dateFormat.format(date).toString();
-	
-    			playerConfig.getNode("Time").setValue(strDate);
-    			playerConfigManager.save();
-    		}
+			UserStorageService userStorage = Main.getGame().getServiceManager().provide(UserStorageService.class).get();
+			BanService banService = Main.getGame().getServiceManager().provide(BanService.class).get();
+			
+			User user = userStorage.get(player.getUniqueId()).get();
 
-    		String remaining = RetroManager.getBanTimeRemaining(player);
-    		if(remaining != null){
-    			player.kick(Texts.of("Game Over!\nTemporarily Banned\n", remaining));
-    		}else{
-    			//Main.getGame().getRegistry().createBuilder(BanBuilder.class).reason(Texts.of("Game Over\nPermanently Banned!")).type(BanType.USER_BAN).user(player).build();
-    			player.getBanData().bans().add((User)player);
-            	player.kick(Texts.of("Game Over\nPermanently Banned!"));
-            }
+			Builder builder = Ban.builder();
+			builder.type(BanTypes.PROFILE).reason(reason).profile(user.getProfile());
+			
+			if(!config.getNode("Ban", "Time").getString().equalsIgnoreCase("0")){
+				builder.expirationDate(new Date(new Date().getTime() + getTimeInMilliSeconds(config.getNode("Options", "Ban", "Temporary", "Time").getString())));
+				reason = Texts.of("Game Over!\nTemporarily Banned\n");
+			}
+
+			banService.addBan(builder.build());
+
+			player.kick(reason);
     	}
+	}
+	
+	private static long getTimeInMilliSeconds(String time) {
+		String[] times = time.split(" ");
+		long milliSeconds = 0;
+		for(String t : times) {
+			if(t.matches("(\\d+)[s]$")) {
+				milliSeconds = TimeUnit.SECONDS.toMillis(Integer.parseInt(t.replace("s", ""))) + milliSeconds;
+			}else if(t.matches("(\\d+)[m]$")) {
+				milliSeconds = TimeUnit.MINUTES.toMillis(Integer.parseInt(t.replace("m", ""))) + milliSeconds;
+			}else if(t.matches("(\\d+)[h]$")) {
+				milliSeconds = TimeUnit.HOURS.toMillis(Integer.parseInt(t.replace("h", ""))) + milliSeconds;
+			}else if(t.matches("(\\d+)[d]$")) {
+				milliSeconds = TimeUnit.DAYS.toMillis(Integer.parseInt(t.replace("d", ""))) + milliSeconds;
+			}else if(t.matches("(\\d+)[w]$")) {
+				milliSeconds = (TimeUnit.DAYS.toMillis(Integer.parseInt(t.replace("d", ""))) * 7) + milliSeconds;
+			}else if(t.matches("(\\d+)[mo]$")) {
+				milliSeconds = (TimeUnit.DAYS.toMillis(Integer.parseInt(t.replace("mo", ""))) * 30) + milliSeconds;
+			}else if(t.matches("(\\d+)[y]$")) {
+				milliSeconds = (TimeUnit.DAYS.toMillis(Integer.parseInt(t.replace("y", ""))) * 365) + milliSeconds;
+			}
+		}
+		return milliSeconds;
 	}
 }

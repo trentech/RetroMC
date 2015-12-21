@@ -2,13 +2,11 @@ package com.gmail.trentech.RetroMC.Managers;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.spongepowered.api.entity.living.player.Player;
 
 import com.gmail.trentech.RetroMC.Main;
+import com.gmail.trentech.RetroMC.Resource;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
@@ -19,41 +17,31 @@ public class ConfigManager {
 	private File file;
 	private CommentedConfigurationNode config;
 	private ConfigurationLoader<CommentedConfigurationNode> loader;
-	private boolean defaultConfig = false;
 	private Player player;
-	
-	public ConfigManager(String folder, String fileName) {
+
+	public ConfigManager(Player player) {
+		this.player = player;
+		String folder = "config/" + Resource.NAME + "/Players/";
         if (!new File(folder).isDirectory()) {
         	new File(folder).mkdirs();
         }
-		file = new File(folder, fileName);
+		file = new File(folder, player.getUniqueId().toString() + ".conf");
 		
 		create();
 		load();
+		init();
+	}
 
-	}
-	
-	public ConfigManager(Player player) {
-		this.player = player;
-        if (!new File("config/RetroMC/Players/").isDirectory()) {
-        	new File("config/RetroMC/Players/").mkdirs();
-        }
-		file = new File("config/RetroMC/Players/", player.getUniqueId().toString() + ".conf");
-		
-		create();
-		load();
-	}
-	
 	public ConfigManager() {
-		defaultConfig = true;
-		
-        if (!new File("config/RetroMC/").isDirectory()) {
-        	new File("config/RetroMC/").mkdirs();
+		String folder = "config/" + Resource.NAME + "/";
+        if (!new File(folder).isDirectory()) {
+        	new File(folder).mkdirs();
         }
-		file = new File("config/RetroMC/", "config.conf");
+		file = new File(folder, "config.conf");
 		
 		create();
 		load();
+		init();
 	}
 	
 	public ConfigurationLoader<CommentedConfigurationNode> getLoader() {
@@ -75,8 +63,7 @@ public class ConfigManager {
 	
 	public void init() {
 		CommentedConfigurationNode config = getConfig();
-		if(defaultConfig){
-
+		if(file.getName().equalsIgnoreCase("config.conf")){
 	        if(config.getNode("Ban", "Enabled").getString() == null) {
 	        	config.getNode("Ban", "Enabled").setValue(false)
 	        	.setComment("Enable Ban when run out of lives");
@@ -93,19 +80,11 @@ public class ConfigManager {
 	        	config.getNode("Zero-Balance").setValue(true)
 	        	.setComment("Set balance to 0 if economy support is available");
 	        }
-		}else{
+		}else if(player != null){
 			config.getNode("Readable-Name").setValue(player.getName());
 		  
 		    if(config.getNode("Lives").getString() == null) {
 		    	config.getNode("Lives").setValue(new ConfigManager().getConfig().getNode("Lives").getInt());
-		    }
-		    if(config.getNode("Banned").getString() == null) {
-		    	config.getNode("Banned").setValue(false);	
-		    }
-		    if(config.getNode("Time").getString() == null){
-    			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    			Date date = new Date();
-		    	config.getNode("Time").setValue(dateFormat.format(date).toString());
 		    }
 		}
 
@@ -115,9 +94,10 @@ public class ConfigManager {
 	private void create(){
 		if(!file.exists()) {
 			try {
+				Main.getLog().info("Creating new " + file.getName() + " file...");
 				file.createNewFile();		
 			} catch (IOException e) {				
-				Main.getLog().error("Config create FAIL:");
+				Main.getLog().error("Failed to create new config file");
 				e.printStackTrace();
 			}
 		}
@@ -128,7 +108,7 @@ public class ConfigManager {
 		try {
 			config = loader.load();
 		} catch (IOException e) {
-			Main.getLog().error("Config load FAIL:");
+			Main.getLog().error("Failed to load config");
 			e.printStackTrace();
 		}
 	}
