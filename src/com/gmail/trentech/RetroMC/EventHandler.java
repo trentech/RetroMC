@@ -18,7 +18,7 @@ public class EventHandler {
 		if(!(event.getTargetEntity() instanceof Player)){
 			return;
 		}
-		Player player = (Player)event.getTargetEntity();
+		Player player = (Player) event.getTargetEntity();
 
         if(!player.hasPermission("RetroMC.enable")) {
         	return;    	

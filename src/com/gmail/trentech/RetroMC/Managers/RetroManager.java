@@ -1,7 +1,7 @@
 package com.gmail.trentech.RetroMC.Managers;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import org.spongepowered.api.data.manipulator.mutable.entity.AchievementData;
@@ -76,7 +76,7 @@ public class RetroManager {
 			builder.type(BanTypes.PROFILE).reason(reason).profile(user.getProfile());
 			
 			if(!config.getNode("Ban", "Time").getString().equalsIgnoreCase("0")){
-				builder.expirationDate(new Date(new Date().getTime() + getTimeInMilliSeconds(config.getNode("Options", "Ban", "Temporary", "Time").getString())));
+				builder.expirationDate(Instant.now().plusMillis(getTimeInMilliSeconds(config.getNode("Ban", "Time").getString())));
 				reason = Texts.of("Game Over!\nTemporarily Banned\n");
 			}
 
