@@ -13,7 +13,6 @@ import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.api.service.ban.BanService;
 import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.ban.Ban;
 import org.spongepowered.api.util.ban.Ban.Builder;
 import org.spongepowered.api.util.ban.BanTypes;
@@ -65,7 +64,7 @@ public class RetroManager {
     	CommentedConfigurationNode config = new ConfigManager().getConfig();
     	
     	if(config.getNode("Ban", "Enabled").getBoolean()){
-    		Text reason = Texts.of("Game Over!\nPermanently Banned\n");
+    		Text reason = Text.of("Game Over!\nPermanently Banned\n");
     		
 			UserStorageService userStorage = Main.getGame().getServiceManager().provide(UserStorageService.class).get();
 			BanService banService = Main.getGame().getServiceManager().provide(BanService.class).get();
@@ -77,7 +76,7 @@ public class RetroManager {
 			
 			if(!config.getNode("Ban", "Time").getString().equalsIgnoreCase("0")){
 				builder.expirationDate(Instant.now().plusMillis(getTimeInMilliSeconds(config.getNode("Ban", "Time").getString())));
-				reason = Texts.of("Game Over!\nTemporarily Banned\n");
+				reason = Text.of("Game Over!\nTemporarily Banned\n");
 			}
 
 			banService.addBan(builder.build());
@@ -99,7 +98,7 @@ public class RetroManager {
 			}else if(t.matches("(\\d+)[d]$")) {
 				milliSeconds = TimeUnit.DAYS.toMillis(Integer.parseInt(t.replace("d", ""))) + milliSeconds;
 			}else if(t.matches("(\\d+)[w]$")) {
-				milliSeconds = (TimeUnit.DAYS.toMillis(Integer.parseInt(t.replace("d", ""))) * 7) + milliSeconds;
+				milliSeconds = (TimeUnit.DAYS.toMillis(Integer.parseInt(t.replace("w", ""))) * 7) + milliSeconds;
 			}else if(t.matches("(\\d+)[mo]$")) {
 				milliSeconds = (TimeUnit.DAYS.toMillis(Integer.parseInt(t.replace("mo", ""))) * 30) + milliSeconds;
 			}else if(t.matches("(\\d+)[y]$")) {

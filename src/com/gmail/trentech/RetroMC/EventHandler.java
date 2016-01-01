@@ -3,7 +3,7 @@ package com.gmail.trentech.RetroMC;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
-import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
 import com.gmail.trentech.RetroMC.Managers.ConfigManager;
@@ -20,7 +20,7 @@ public class EventHandler {
 		}
 		Player player = (Player) event.getTargetEntity();
 
-        if(!player.hasPermission("RetroMC.enable")) {
+        if(!player.hasPermission("retro.enable")) {
         	return;    	
         }
 
@@ -29,15 +29,14 @@ public class EventHandler {
     	
     	int lives = playerConfig.getNode("Lives").getInt() - 1;
     	if(lives <= 0) {
-    		//CLEAR DROPS
     		playerConfig.getNode("Lives").setValue(new ConfigManager().getConfig().getNode("Lives").getInt());
     		playerConfigManager.save();
-    		player.sendMessage(Texts.of(TextColors.DARK_RED, "Game Over!"));
+    		player.sendMessage(Text.of(TextColors.DARK_RED, "Game Over!"));
     		RetroManager.resetPlayer(player);
     	}else{
     		playerConfig.getNode("Lives").setValue(lives);
     		playerConfigManager.save();
-    		player.sendMessage(Texts.of(TextColors.YELLOW, "Lives: ", lives));
+    		player.sendMessage(Text.of(TextColors.YELLOW, "Lives: ", lives));
     	}   	
 	}
 }

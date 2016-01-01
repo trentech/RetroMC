@@ -36,8 +36,8 @@ public class Main {
 	public void onInitialization(GameInitializationEvent event) {
 		new ConfigManager();
 		
-		game.getCommandManager().register(this, new CMDRetro().cmdRetro, "retro", "r");
-		game.getEventManager().registerListeners(this, new EventHandler());
+		getGame().getCommandManager().register(this, new CMDRetro().cmdRetro, "retro", "r");
+		getGame().getEventManager().registerListeners(this, new EventHandler());
 		
 		if(!EconomyManager.initialize()){
 			log.warn("Economy plugin not found!");

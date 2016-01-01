@@ -8,7 +8,7 @@ import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
 import com.gmail.trentech.RetroMC.Main;
@@ -18,21 +18,21 @@ import ninja.leaping.configurate.ConfigurationNode;
 
 public class CMDReset implements CommandExecutor {
 
-	public CommandSpec cmdReset = CommandSpec.builder().description(Texts.of("Reset Player!")).permission("RetroMC.cmd.reset")
-			.arguments(GenericArguments.optional(GenericArguments.string(Texts.of("playerName")))).executor(this).build();
+	public CommandSpec cmdReset = CommandSpec.builder().description(Text.of("Reset Player!")).permission("retro.cmd.reset")
+			.arguments(GenericArguments.optional(GenericArguments.string(Text.of("playerName")))).executor(this).build();
 	
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {		
 		if(!args.hasAny("playerName")) {
-			src.sendMessage(Texts.of(TextColors.DARK_RED, "Invalid Argument!"));
-			src.sendMessage(Texts.of(TextColors.YELLOW, "/kit reset <player>"));
+			src.sendMessage(Text.of(TextColors.DARK_RED, "Invalid Argument!"));
+			src.sendMessage(Text.of(TextColors.YELLOW, "/kit reset <player>"));
 			return CommandResult.empty();
 		}
 
 		String playerName = args.<String>getOne("playerName").get();
 
 		if(Main.getGame().getServer().getPlayer(playerName).get() == null) {
-			src.sendMessage(Texts.of(TextColors.DARK_RED, playerName, "Not Found!"));
+			src.sendMessage(Text.of(TextColors.DARK_RED, playerName, "Not Found!"));
 			return CommandResult.empty();
 		}		
 
@@ -45,7 +45,7 @@ public class CMDReset implements CommandExecutor {
 
         playerConfigManager.save();
 
-		src.sendMessage(Texts.of(TextColors.DARK_GREEN, "Reset!"));
+		src.sendMessage(Text.of(TextColors.DARK_GREEN, "Reset!"));
 		
 		return CommandResult.success();
 	}
