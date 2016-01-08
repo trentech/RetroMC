@@ -1,8 +1,13 @@
 package com.gmail.trentech.RetroMC;
 
+import java.util.HashMap;
+
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
+import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.item.inventory.DropItemEvent;
+import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -13,6 +18,8 @@ import ninja.leaping.configurate.ConfigurationNode;
 
 public class EventHandler {
 
+	HashMap<Player,Inventory> hash = new HashMap<>();
+	
 	@Listener
 	public void onPlayerDeath(DestructEntityEvent.Death event) {
 		if(!(event.getTargetEntity() instanceof Player)){
@@ -37,6 +44,16 @@ public class EventHandler {
     		playerConfig.getNode("Lives").setValue(lives);
     		playerConfigManager.save();
     		player.sendMessage(Text.of(TextColors.YELLOW, "Lives: ", lives));
+    		hash.put(player, player.getInventory());
     	}   	
+	}
+	
+	@Listener
+	public void onDropItemEvent(DropItemEvent.Destruct event, @First Player player) {
+        if(!player.hasPermission("retro.enable")) {
+        	return;    	
+        }
+        
+    	event.setCancelled(true);	
 	}
 }

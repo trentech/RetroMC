@@ -45,7 +45,7 @@ public class RetroManager {
 			TradeOfferData data = player.get(TradeOfferData.class).get();
 			data.tradeOffers().set(new ArrayList<TradeOffer>());
 		}
-
+		player.getInventory().clear();
 	}
 	
 	private static void blockRollback(Player player){
