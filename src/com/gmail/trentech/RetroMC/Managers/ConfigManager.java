@@ -6,7 +6,6 @@ import java.io.IOException;
 import org.spongepowered.api.entity.living.player.Player;
 
 import com.gmail.trentech.RetroMC.Main;
-import com.gmail.trentech.RetroMC.Resource;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
@@ -21,7 +20,7 @@ public class ConfigManager {
 
 	public ConfigManager(Player player) {
 		this.player = player;
-		String folder = "config/" + Resource.NAME + "/Players/";
+		String folder = "config/retromc/players/";
         if (!new File(folder).isDirectory()) {
         	new File(folder).mkdirs();
         }
@@ -33,7 +32,7 @@ public class ConfigManager {
 	}
 
 	public ConfigManager() {
-		String folder = "config/" + Resource.NAME + "/";
+		String folder = "config/retromc/";
         if (!new File(folder).isDirectory()) {
         	new File(folder).mkdirs();
         }
