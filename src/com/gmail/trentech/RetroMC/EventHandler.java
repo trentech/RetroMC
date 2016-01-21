@@ -1,24 +1,36 @@
 package com.gmail.trentech.RetroMC;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
+import com.gmail.trentech.RetroMC.Data.PlayerData;
 import com.gmail.trentech.RetroMC.Managers.ConfigManager;
 import com.gmail.trentech.RetroMC.Managers.RetroManager;
-
-import ninja.leaping.configurate.ConfigurationNode;
 
 public class EventHandler {
 
 	HashMap<Player,Inventory> hash = new HashMap<>();
+	
+	@Listener
+	public void onClientConnectionEvent(ClientConnectionEvent.Join event, @First Player player){
+		Optional<PlayerData> optionalplayerDara = player.get(PlayerData.class);
+		
+		if(optionalplayerDara.isPresent()){
+			return;
+		}
+		
+		player.offer(new PlayerData());
+	}
 	
 	@Listener
 	public void onPlayerDeath(DestructEntityEvent.Death event) {
@@ -31,21 +43,22 @@ public class EventHandler {
         	return;    	
         }
 
-    	ConfigManager playerConfigManager = new ConfigManager(player);
-    	ConfigurationNode playerConfig = playerConfigManager.getConfig();
+        PlayerData playerData = player.get(PlayerData.class).get();
+
+    	int lives = playerData.lives().get() - 1;
     	
-    	int lives = playerConfig.getNode("Lives").getInt() - 1;
     	if(lives <= 0) {
-    		playerConfig.getNode("Lives").setValue(new ConfigManager().getConfig().getNode("Lives").getInt());
-    		playerConfigManager.save();
+    		playerData.lives().set(new ConfigManager().getConfig().getNode("Lives").getInt());
+
     		player.sendMessage(Text.of(TextColors.DARK_RED, "Game Over!"));
     		RetroManager.resetPlayer(player);
     	}else{
-    		playerConfig.getNode("Lives").setValue(lives);
-    		playerConfigManager.save();
+    		playerData.lives().set(lives);
+    		
     		player.sendMessage(Text.of(TextColors.YELLOW, "Lives: ", lives));
     		hash.put(player, player.getInventory());
-    	}   	
+    	} 
+    	player.offer(playerData);
 	}
 	
 	@Listener

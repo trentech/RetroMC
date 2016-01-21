@@ -12,9 +12,8 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
 import com.gmail.trentech.RetroMC.Main;
+import com.gmail.trentech.RetroMC.Data.PlayerData;
 import com.gmail.trentech.RetroMC.Managers.ConfigManager;
-
-import ninja.leaping.configurate.ConfigurationNode;
 
 public class CMDReset implements CommandExecutor {
 
@@ -38,12 +37,11 @@ public class CMDReset implements CommandExecutor {
 
 		Player player = Main.getGame().getServer().getPlayer(playerName).get();
 
-    	ConfigManager playerConfigManager = new ConfigManager(player);
-    	ConfigurationNode playerConfig = playerConfigManager.getConfig();
-
-        playerConfig.getNode("Lives").setValue(new ConfigManager().getConfig().getNode("Lives").getInt());
-
-        playerConfigManager.save();
+		PlayerData playerData = player.get(PlayerData.class).get();
+		
+		playerData.lives().set(new ConfigManager().getConfig().getNode("Lives").getInt());
+		
+		player.offer(playerData);
 
 		src.sendMessage(Text.of(TextColors.DARK_GREEN, "Reset!"));
 		

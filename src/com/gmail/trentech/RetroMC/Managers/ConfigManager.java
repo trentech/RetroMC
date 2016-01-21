@@ -3,8 +3,6 @@ package com.gmail.trentech.RetroMC.Managers;
 import java.io.File;
 import java.io.IOException;
 
-import org.spongepowered.api.entity.living.player.Player;
-
 import com.gmail.trentech.RetroMC.Main;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -16,20 +14,6 @@ public class ConfigManager {
 	private File file;
 	private CommentedConfigurationNode config;
 	private ConfigurationLoader<CommentedConfigurationNode> loader;
-	private Player player;
-
-	public ConfigManager(Player player) {
-		this.player = player;
-		String folder = "config/retromc/players/";
-        if (!new File(folder).isDirectory()) {
-        	new File(folder).mkdirs();
-        }
-		file = new File(folder, player.getUniqueId().toString() + ".conf");
-		
-		create();
-		load();
-		init();
-	}
 
 	public ConfigManager() {
 		String folder = "config/retromc/";
@@ -79,12 +63,6 @@ public class ConfigManager {
 	        	config.getNode("Zero-Balance").setValue(true)
 	        	.setComment("Set balance to 0 if economy support is available");
 	        }
-		}else if(player != null){
-			config.getNode("Readable-Name").setValue(player.getName());
-		  
-		    if(config.getNode("Lives").getString() == null) {
-		    	config.getNode("Lives").setValue(new ConfigManager().getConfig().getNode("Lives").getInt());
-		    }
 		}
 
         save();

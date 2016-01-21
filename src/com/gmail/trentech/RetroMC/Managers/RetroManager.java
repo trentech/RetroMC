@@ -1,5 +1,6 @@
 package com.gmail.trentech.RetroMC.Managers;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -9,8 +10,11 @@ import org.spongepowered.api.data.manipulator.mutable.entity.ExperienceHolderDat
 import org.spongepowered.api.data.manipulator.mutable.entity.TradeOfferData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.api.service.ban.BanService;
+import org.spongepowered.api.service.economy.EconomyService;
+import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.ban.Ban;
@@ -53,10 +57,21 @@ public class RetroManager {
 	}
 	
 	private static void deleteMoney(Player player){
-		if(Main.hasEconomy()){
-			if(new ConfigManager().getConfig().getNode("Zero-Balance").getBoolean()){
-				EconomyManager.setBalance(player.getUniqueId().toString(), null, 0);
+		if(new ConfigManager().getConfig().getNode("Zero-Balance").getBoolean()){
+			if(!Main.getGame().getServiceManager().provide(EconomyService.class).isPresent()){
+				return;
 			}
+			Main.getGame().getServiceManager().provide(EconomyService.class).get();
+			
+			EconomyService economy = Main.getGame().getServiceManager().provide(EconomyService.class).get();
+
+			if(!economy.getAccount(player.getUniqueId()).isPresent()){
+				return;
+			}
+			
+			UniqueAccount account = economy.getAccount(player.getUniqueId()).get();
+
+			account.setBalance(economy.getDefaultCurrency(), new BigDecimal(0), Cause.of(Main.getPlugin()));
 		}
 	}
 
